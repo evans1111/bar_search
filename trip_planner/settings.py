@@ -122,5 +122,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Set where images get saved
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 # Change bootstrap version
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# New setting for a login redirect
+LOGIN_REDIRECT_URL = 'blog-home'
+
+# Set the login route
+LOGIN_URL = 'login'
