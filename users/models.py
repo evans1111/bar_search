@@ -13,9 +13,9 @@ class Account(models.Model):
         super().save(*args, **kwargs)
         # Inherit the image from the parent class. 
         # Save the image as an instance of itself
-        img = Image.open(self,image.path)
+        img = Image.open(self.image.path)
         # Re-size the image if it's too large
         if img.height > 300 or img.width > 300:
             output_size = (300, 300)
             img.thumbnail(output_size)
-            img.save()
+            img.save(self.image.path)
