@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 # From our models within the current package/directory, import the Post class
 from django.views.generic import (
@@ -24,6 +25,18 @@ class PostListView(ListView):
     context_object_name = 'posts'
     ordering = ['-date_posted']
     paginate_by = 5
+
+class UserPostListView(ListView):
+    model = Post
+    template_name = 'blog/user_posts.html' # <app>/<model>_<viewtype>.html
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        # Get user associated with the username that we get from the url
+        # If the user doesn't exist, return 404 DNE error (using get_object_or_404 from imports)
+        user = get_object_or_404(User, username=self.kwargs.get('username')) # Capture the user into user variable if they exist
+        return Post.objects.filter(author=user).order_by('-date_posted') # Order by date posted reverse
 
 class PostDetailView(DetailView):
     model = Post
