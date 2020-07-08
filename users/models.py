@@ -19,3 +19,5 @@ class Account(models.Model):
             output_size = (300, 300)
             img.thumbnail(output_size)
             img.save(self.image.path)
+
+# Add Custom User Model to allow login with email and password instead of username 
