@@ -8,10 +8,12 @@ from .models import Account
 class UserRegisterForm(UserCreationForm):
     # Set EmailField(required=false) to not have it be required
     email = forms.EmailField()
+    first_name = forms.CharField(label='First Name')
+    last_name = forms.CharField(label='Last Name')
 
     class Meta:
         model = User 
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'last_name' , 'password1', 'password2']
 
 
 class UserUpdateForm(forms.ModelForm):
@@ -19,7 +21,7 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User 
-        fields = ['username', 'email']
+        fields = ['username', 'first_name', 'last_name', 'email']
 
 class AccountUpdateForm(forms.ModelForm):
     class Meta:
