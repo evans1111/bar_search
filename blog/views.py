@@ -1,20 +1,46 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status 
+import requests
+import json
+from users.forms import SearchForm
+from django.views.generic.base import TemplateView
+
 # From our models within the current package/directory, import the Post class
 from django.views.generic import (
     ListView, 
     DetailView, 
     CreateView,
     UpdateView,
-    DeleteView
+    DeleteView,
 )
 from .models import Post
 
+class HomePageView(TemplateView):
+    template_name = 'blog/home.html'
 
-# Create your views here.
-def home(request):
-    return render(request, 'blog/home.html')
+    def get(self, request):
+        api_key='ICFTK388eCNp493fEzwT-hwJCHgGKZi-Hjs-ZNVMThBBzPDduzs8Pya_WCs7tSSAnjqUPjmwrAhMXy3kC3wZlnCnpNo31qgMSSsEjLGW6dP6w09xMlMrX19sCbQcX3Yx'
+        url = 'https://api.yelp.com/v3/businesses/search?categories=bars&location={}&reviews?sort_by=rating'
+        zip_code = '33703'
+        headers = {'Authorization': 'Bearer %s' % api_key}
+        r = requests.get(url.format(zip_code), headers=headers).json()
+
+        #converts the json response into a usable dictionary
+        bar_name = {
+            'name': r['businesses'][0]['name']
+        }
+
+        context = {'bar_name' : bar_name}
+        return render(request, self.template_name, context)
+
+        
+
+   
 
 def blog(request):
     context = {

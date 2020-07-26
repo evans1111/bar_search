@@ -1,4 +1,17 @@
 {% extends "blog/base.html" %}
 {% block content %}
-  <h1>home</h1>
+<div class="container">
+<h1>home</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Search</button>
+  </form>
+
+  <h3>{{ zip_code }}</h3>
+
+  <p>{{ bar_name.name }}</p>
+
+</div>
+   
 {% endblock content %}

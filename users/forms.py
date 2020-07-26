@@ -27,3 +27,7 @@ class AccountUpdateForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = ['image']
+
+class SearchForm(forms.Form):
+    zip_code = forms.IntegerField(label='Zip Code')
+
