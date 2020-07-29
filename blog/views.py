@@ -2,9 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status 
+from django.shortcuts import render
+from django.http import HttpResponse
 import requests
 import json
 from users.forms import SearchForm
@@ -19,35 +18,59 @@ from django.views.generic import (
     DeleteView,
 )
 from .models import Post
+    
 
-class HomePageView(TemplateView):
-    template_name = 'blog/home.html'
+    # def get(self, request):
+    #     api_key='ICFTK388eCNp493fEzwT-hwJCHgGKZi-Hjs-ZNVMThBBzPDduzs8Pya_WCs7tSSAnjqUPjmwrAhMXy3kC3wZlnCnpNo31qgMSSsEjLGW6dP6w09xMlMrX19sCbQcX3Yx'
+    #     url = 'https://api.yelp.com/v3/businesses/search?categories=bars&location={}&reviews?sort_by=rating'
+    #     zip_code = '33703'
+    #     headers = {'Authorization': 'Bearer %s' % api_key}
+    #     r = requests.get(url.format(zip_code), headers=headers).json()
 
-    def get(self, request):
-        api_key='ICFTK388eCNp493fEzwT-hwJCHgGKZi-Hjs-ZNVMThBBzPDduzs8Pya_WCs7tSSAnjqUPjmwrAhMXy3kC3wZlnCnpNo31qgMSSsEjLGW6dP6w09xMlMrX19sCbQcX3Yx'
-        url = 'https://api.yelp.com/v3/businesses/search?categories=bars&location={}&reviews?sort_by=rating'
-        zip_code = '33703'
-        headers = {'Authorization': 'Bearer %s' % api_key}
-        r = requests.get(url.format(zip_code), headers=headers).json()
+    #     #converts the json response into a usable dictionary
+    #     bar_name = {
+    #         'name': r['businesses'][0]['name']
+    #     }
 
-        #converts the json response into a usable dictionary
-        bar_name = {
-            'name': r['businesses'][0]['name']
-        }
-
-        context = {'bar_name' : bar_name}
-        return render(request, self.template_name, context)
-
-        
-
+    #     context = {'bar_name' : bar_name}
+    #     return render(request, self.template_name, context)
    
 
+# Home Page
+def home(request):
+    api_key='ICFTK388eCNp493fEzwT-hwJCHgGKZi-Hjs-ZNVMThBBzPDduzs8Pya_WCs7tSSAnjqUPjmwrAhMXy3kC3wZlnCnpNo31qgMSSsEjLGW6dP6w09xMlMrX19sCbQcX3Yx'
+    url = 'https://api.yelp.com/v3/businesses/search?categories=bars&location={}&reviews?sort_by=rating'
+    headers = {'Authorization': 'Bearer %s' % api_key}
+    params = {
+        'limit': 20,
+        'radius': 10000
+
+    }
+    form = SearchForm()
+
+    if request.method == "GET":
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            zc = form.cleaned_data["zip_code"]
+            r = requests.get(url.format(zc), headers=headers, params=params).json()
+            business_data = r
+            print(zc)
+            form = SearchForm()
+    else:
+        redirect('/')
+    
+    for biz in business_data['businesses']:
+        print(biz['name'])
+    return render(request, 'blog/home.html', {"form": form})      
+
+# Blog Page
 def blog(request):
     context = {
         'posts': Post.objects.all()
     }
     return render(request, 'blog/blog.html', context)
 
+# Blog List
 class PostListView(ListView):
     model = Post
     template_name = 'blog/blog.html' # <app>/<model>_<viewtype>.html
@@ -106,4 +129,5 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 def about(request):
-    return render(request, 'blog/about.html', {'title': 'About'})
+    form = SearchForm()
+    return render(request, 'blog/about.html', {'form': form})
