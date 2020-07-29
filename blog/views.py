@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.template import RequestContext
 import requests
 import json
 from users.forms import SearchForm
@@ -43,24 +44,33 @@ def home(request):
     headers = {'Authorization': 'Bearer %s' % api_key}
     params = {
         'limit': 20,
-        'radius': 10000
+        'radius': 10000,
+        'offset': 50
 
     }
     form = SearchForm()
 
     if request.method == "GET":
-        form = SearchForm(request.GET)
+        form = SearchForm(request.GET or None)
         if form.is_valid():
             zc = form.cleaned_data["zip_code"]
-            r = requests.get(url.format(zc), headers=headers, params=params).json()
-            business_data = r
+            business_data = requests.get(url.format(zc), headers=headers, params=params).json()
             print(zc)
             form = SearchForm()
+            # print(business_data)
+            for biz in business_data['businesses']:
+                print(biz['name'])
+
+            context = {
+                'businesses': business_data['businesses']
+            }
+            
+            return render(request, 'blog/home.html', context)
+            
     else:
         redirect('/')
     
-    for biz in business_data['businesses']:
-        print(biz['name'])
+    
     return render(request, 'blog/home.html', {"form": form})      
 
 # Blog Page

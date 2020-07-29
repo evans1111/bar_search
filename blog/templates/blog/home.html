@@ -2,14 +2,17 @@
 {% block content %}
 <div class="container">
 <h1>home</h1>
-  <form method="get" action="#">
+  <form method="get" action="{% url 'blog-home' %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Search</button>
   </form>
 
+  {% for biz in businesses %}
+    <p>{{ biz.name }}</p>
+    <p>{{ biz.rating }}</p>
+  {% endfor %}
 
-  <!-- <p>{{ bar_name.name }}</p> -->
 
 </div>
    
