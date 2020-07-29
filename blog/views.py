@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext
@@ -19,24 +18,7 @@ from django.views.generic import (
     DeleteView,
 )
 from .models import Post
-    
-
-    # def get(self, request):
-    #     api_key='ICFTK388eCNp493fEzwT-hwJCHgGKZi-Hjs-ZNVMThBBzPDduzs8Pya_WCs7tSSAnjqUPjmwrAhMXy3kC3wZlnCnpNo31qgMSSsEjLGW6dP6w09xMlMrX19sCbQcX3Yx'
-    #     url = 'https://api.yelp.com/v3/businesses/search?categories=bars&location={}&reviews?sort_by=rating'
-    #     zip_code = '33703'
-    #     headers = {'Authorization': 'Bearer %s' % api_key}
-    #     r = requests.get(url.format(zip_code), headers=headers).json()
-
-    #     #converts the json response into a usable dictionary
-    #     bar_name = {
-    #         'name': r['businesses'][0]['name']
-    #     }
-
-    #     context = {'bar_name' : bar_name}
-    #     return render(request, self.template_name, context)
-   
-
+       
 # Home Page
 def home(request):
     api_key='ICFTK388eCNp493fEzwT-hwJCHgGKZi-Hjs-ZNVMThBBzPDduzs8Pya_WCs7tSSAnjqUPjmwrAhMXy3kC3wZlnCnpNo31qgMSSsEjLGW6dP6w09xMlMrX19sCbQcX3Yx'
@@ -49,27 +31,33 @@ def home(request):
 
     }
     form = SearchForm()
-
     if request.method == "GET":
         form = SearchForm(request.GET or None)
         if form.is_valid():
+            # Append user entry (zip code) onto the endpoint url
             zc = form.cleaned_data["zip_code"]
-            business_data = requests.get(url.format(zc), headers=headers, params=params).json()
-            print(zc)
-            form = SearchForm()
-            # print(business_data)
-            for biz in business_data['businesses']:
-                print(biz['name'])
 
-            context = {
-                'businesses': business_data['businesses']
-            }
-            
-            return render(request, 'blog/home.html', context)
-            
+            # Save the json dictionary to business_data
+            try:
+                business_data = requests.get(url.format(zc), headers=headers, params=params).json()
+            except requests.exceptions.RequestException:
+                #Handle incase you're unable to get the response
+                redirect('about/')
+                
+            else:
+                # Re-instantiate the form after it's submitted
+                form = SearchForm()
+
+                # Save the json response into a new dictionary
+                context = {
+                    'businesses': business_data['businesses']
+                }
+                
+                print(context)
+                # Return the data so that it is available for the home page template
+                return render(request, 'blog/home.html', context)     
     else:
         redirect('/')
-    
     
     return render(request, 'blog/home.html', {"form": form})      
 

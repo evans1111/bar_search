@@ -1,17 +1,27 @@
 {% extends "blog/base.html" %}
 {% block content %}
 <div class="container">
-<h1>home</h1>
+<h1 class="home-headline">Find The Top Bars Near You</h1>
+
+<div class="form-container">
   <form method="get" action="{% url 'blog-home' %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Search</button>
   </form>
+</div>
+
+<div class="bar-list">
+  {% if businesses.0.location.city %}
+    <h4>These are the top ranked bars in the {{ businesses.0.location.city }} area</h4>
+  {% endif %}
 
   {% for biz in businesses %}
     <p>{{ biz.name }}</p>
     <p>{{ biz.rating }}</p>
   {% endfor %}
+</div>
+  
 
 
 </div>
