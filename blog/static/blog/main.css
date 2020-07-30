@@ -94,3 +94,6 @@ a.article-title:hover {
 .form-container form {
   text-align: center;
 }
+.card-img-top {
+  max-height: 300px;
+}
